@@ -4,7 +4,7 @@ dotnet --version
 2.1.403
 ```
 ```
-node --version
+npm --version
 5.6.0
 ```
 #### Run

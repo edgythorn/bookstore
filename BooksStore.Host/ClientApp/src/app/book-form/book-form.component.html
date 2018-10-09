@@ -1,0 +1,86 @@
+<div class="container">
+  <div *ngIf="book" class="row">
+
+    <div class="col-md-8">
+      <form #bookForm="ngForm" class="form-group">
+
+        <div>
+          <label>Название</label>
+          <input [(ngModel)]="book.title" name="title" required maxlength="90" #title="ngModel" class="form-control"
+            [class.show-errors]="showErrors">
+          <div *ngIf="!title.valid && (title.touched || showErrors)" class="alert alert-danger">
+            Название обязательно и должно содержать не более 90 символов
+          </div>
+        </div>
+        <div>
+          <label>Число страниц</label>
+          <input type="number" [(ngModel)]="book.pagesCount" name="pagesCount" required [range]="[1,10000]" #pagesCount="ngModel"
+            class="form-control" [class.show-errors]="showErrors">
+          <div *ngIf="!pagesCount.valid && (pagesCount.touched || showErrors)" class="alert alert-danger">
+            Число страниц обязательно и должно быть от 1 до 10000
+          </div>
+        </div>
+        <div>
+          <label>Издательство</label>
+          <input [(ngModel)]="book.publisher" name="publisher" maxlength="30" class="form-control">
+        </div>
+        <div>
+          <label>Год публикации</label>
+          <input type="number" [(ngModel)]="book.publishYear" name="publishYear" [gte]="1800" class="form-control"
+            #publishYear="ngModel">
+          <div *ngIf="!publishYear.valid && (publishYear.touched || showErrors)" class="alert alert-danger">
+            Год публикации должен быть не раньше 1800
+          </div>
+        </div>
+        <div>
+          <label>ISBN</label>
+          <input [(ngModel)]="book.isbn" name="isbn" isbn class="form-control" #isbn="ngModel" [class.show-errors]="showErrors">
+          <div *ngIf="!isbn.valid && (isbn.touched || showErrors)" class="alert alert-danger">
+            Номер ISBN обязателен и должен соответствовать формату
+          </div>
+        </div>
+
+        <div>Авторы</div>
+        <div #authors>
+          <div *ngFor="let author of book.authors; let i = index">
+            <input [(ngModel)]="author.givenname" placeholder="Имя" required maxlength="20" class="author" name="givenname_{{i}}"
+              [class.show-errors]="showErrors">
+            <input [(ngModel)]="author.surname" placeholder="Фамилия" required maxlength="20" class="author" name="surname_{{i}}"
+              [class.show-errors]="showErrors">
+            <button (click)="deleteAuthor(i)" class="btn-default">X</button>
+          </div>
+        </div>
+        <button (click)="addAuthor()" class="btn-default">+</button>
+        <div *ngIf="book.authors.length < 1" class="alert alert-danger">
+          Укажите хотя бы одного автора
+        </div>
+
+        <div>
+          <div>Обложка</div>
+          <input type="file" (change)="onFilesChanged($event.target.files, img)" accept="image/png,image/jpeg"  class="form-control">
+          <div *ngIf="imageSizeIsTooLarge" class="alert alert-danger">
+            Размер файла должен быть не больше {{maxImageSize}}
+          </div>
+        </div>
+
+        <div>
+          <div *ngIf="bookForm.invalid || book.authors.length < 1; then errors else valid"></div>
+          <ng-template #errors>
+            <button (click)="showErrors = true">Сохранить</button>
+          </ng-template>
+          <ng-template #valid>
+            <button (click)="submit()">Сохранить</button>
+          </ng-template>
+
+          <button (click)="cancel()">Отмена</button>
+        </div>
+
+      </form>
+    </div>
+
+    <div class="col-md-4">
+      <img [src]="imagePath" width="100%" #img />
+    </div>
+
+  </div>
+</div>

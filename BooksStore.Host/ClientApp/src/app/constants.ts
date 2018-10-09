@@ -1,0 +1,9 @@
+export const ROUTE_BOOKS_SEGMENT = 'books';
+export const ROUTE_SORT_SEGMENT = 'orderby';
+export const ROUTE_FIELD_PARAMETER = 'field';
+export const ROUTE_SORT_PARAMETER = 'sort';
+export const ROUTE_ADD_SEGMENT = 'add';
+export const ROUTE_EDIT_SEGMENT = 'edit';
+export const ROUTE_ID_PARAMETER = 'id';
+export const ROUTE_PAGE_SEGMENT = 'page';
+export const ROUTE_PAGE_PARAMETER = 'page';

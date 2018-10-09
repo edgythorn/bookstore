@@ -1,0 +1,12 @@
+
+input.ng-invalid.ng-touched{
+    border: solid red 2px;
+}
+input.ng-invalid.show-errors{
+    border: solid red 2px;
+}
+.material-icons{
+    color: gray;
+    cursor: pointer;    
+    vertical-align: middle;
+}

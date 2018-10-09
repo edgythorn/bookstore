@@ -1,0 +1,36 @@
+<table class="table table-striped ">
+  <tr>
+    <th>Обложка</th>
+    <th (click)="sort('title')" class="sort-header">
+      Название
+      <app-sort-icons [sort]="currentSort" [forField]="'title'"></app-sort-icons>
+    </th>
+    <th>Авторы</th>
+    <th>Страниц</th>
+    <th>Издательство</th>
+    <th (click)="sort('publishYear')" class="sort-header">
+      Год
+      <app-sort-icons [sort]="currentSort" [forField]="'publishYear'"></app-sort-icons>
+    </th>
+    <th>ISBN</th>
+    <th>
+      <a routerLink="/add"><i class="material-icons">library_add</i></a>
+    </th>
+  </tr>
+  <tr *ngFor='let book of books'>
+    <td><img *ngIf="book.imagePreview" [src]="book.imagePreview" height="100" /></td>
+    <td>{{book.title}}</td>
+    <td>
+      <div *ngFor='let author of book.authors'>{{author.givenname}} {{author.surname}}</div>
+    </td>
+    <td>{{book.pagesCount}}</td>
+    <td>{{book.publisher}}</td>
+    <td>{{book.publishYear}}</td>
+    <td>{{book.isbn}}</td>
+    <td>
+      <i (click)="delete(book)" class="material-icons">delete_forever</i>
+      <a routerLink="/edit/{{book.id}}"><i class="material-icons">edit</i></a>
+    </td>
+  </tr>
+</table>
+<mat-paginator [length]="total" [pageIndex]="pageIndex" [pageSize]="pageSize" [hidePageSize]="true" [showFirstLastButtons]="true" (page)="onPageChanged($event)"></mat-paginator>

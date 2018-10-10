@@ -47,6 +47,7 @@ namespace BooksStore.Host
             });
 
             services.AddSingleton<IBooksRepository, InMemoryBooksRepository>();
+            services.AddTransient<IImagesService, ImagesService>();
             services.AddTransient<IBooksService, BooksService>();
         }
 

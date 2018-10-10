@@ -3,7 +3,6 @@ using BooksStore.Models;
 using BooksStore.Settings;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -17,12 +16,14 @@ namespace BooksStore.Services
     public class BooksService : IBooksService
     {
         private readonly IBooksRepository _repository;
+        private readonly IImagesService _imagesService;
         private readonly BooksServiceSettings _settings;
         private readonly ILogger<BooksService> _logger;
 
-        public BooksService(IBooksRepository repository, BooksServiceSettings settings, ILogger<BooksService> logger)
+        public BooksService(IBooksRepository repository, IImagesService imagesService, BooksServiceSettings settings, ILogger<BooksService> logger)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _imagesService = imagesService;
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -41,7 +42,7 @@ namespace BooksStore.Services
                 book.Id = Guid.NewGuid();
             }
 
-            var containsImage = ProcessImage(book, image, imageContentType);
+            var containsImage = _imagesService.SaveImage(book, image, imageContentType);
 
             try
             {
@@ -53,7 +54,7 @@ namespace BooksStore.Services
 
                 if (containsImage)
                 {
-                    DeleteImageFiles(book);
+                    _imagesService.DeleteImage(book);
                 }
 
                 throw;
@@ -71,7 +72,7 @@ namespace BooksStore.Services
 
             var book = await _repository.DeleteBookAsync(bookId);
 
-            DeleteImageFiles(book);
+            _imagesService.DeleteImage(book);
         }
 
         public async Task<Book> GetBookAsync(Guid bookId)
@@ -117,7 +118,7 @@ namespace BooksStore.Services
 
             _logger.LogInformation($"Update book {book.Id}");
 
-            var containsImage = ProcessImage(book, image, imageContentType);
+            var containsImage = _imagesService.SaveImage(book, image, imageContentType);
 
             try
             {
@@ -129,83 +130,10 @@ namespace BooksStore.Services
 
                 if (containsImage)
                 {
-                    DeleteImageFiles(book);
+                    _imagesService.DeleteImage(book);
                 }
 
                 throw;
-            }
-        }
-
-        private bool ProcessImage(Book book, Stream stream, string imageContentType)
-        {
-            if (stream == null)
-            {
-                return false;
-            }
-
-            ValidateImage(stream, imageContentType, out string extension);
-
-            //TODO При очень большом количестве файлов необходима структуризация каталога
-            var directory = Path.Combine(_settings.ImagesRootPath, _settings.ImagesRelativePath);
-            if (!Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            var fileName = $"{book.Id}.{extension}";
-            var previewFileName = $"{book.Id}-preview.{extension}";
-
-            //TODO Оптимизация и превью, только если размер превышает заданный порог
-            //TODO При высоких нагрузках возможны проблемы с памятью - использовать SemaphoreSlim при работе с изображениями
-            using (var original = Image.FromStream(stream))
-            using (var optimized = original.Resize(_settings.ImageOptimizedHeight))
-            using (var preview = original.Resize(_settings.ImagePreviewHeigt))
-            {
-                optimized.Save(Path.Combine(directory, fileName));
-                preview.Save(Path.Combine(directory, previewFileName));
-            }
-
-            book.Image = $"{_settings.ImagesRelativePath}/{fileName}";
-            book.ImagePreview = $"{_settings.ImagesRelativePath}/{previewFileName}";
-
-            return true;
-        }
-
-        private void ValidateImage(Stream stream, string imageContentType, out string extension)
-        {
-            if (!_settings.AllowedContentTypes.TryGetValue(imageContentType, out extension))
-            {
-                throw new NotSupportedException($"Content type {imageContentType} is not supported");
-            }
-
-            if (stream.Length == 0)
-            {
-                throw new ArgumentException("Empty file");
-            }
-
-            if (stream.Length > _settings.MaxImageSize)
-            {
-                throw new ArgumentException("File is too large");
-            }
-        }
-
-        private void DeleteImageFiles(Book book)
-        {
-            DeleteFile(book.Image);
-            DeleteFile(book.ImagePreview);
-        }
-
-        private void DeleteFile(string imageRelativePath)
-        {
-            if (string.IsNullOrEmpty(imageRelativePath))
-            {
-                return;
-            }
-
-            var path = Path.Combine(_settings.ImagesRootPath, imageRelativePath);
-            if (File.Exists(path))
-            {
-                File.Delete(path);
             }
         }
     }

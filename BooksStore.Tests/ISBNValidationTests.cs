@@ -31,7 +31,7 @@ namespace BooksStore.Tests
 
 
         [TestMethod]
-        public void ValidISBN_Test()
+        public void ISBN_ValidTest()
         {
             foreach (var item in _valid)
             {
@@ -40,7 +40,7 @@ namespace BooksStore.Tests
         }
 
         [TestMethod]
-        public void InvalidISBN_Test()
+        public void ISBN_InvalidTest()
         {
             foreach (var item in _invalid)
             {

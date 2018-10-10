@@ -7,7 +7,7 @@ namespace BooksStore.Tests
     public class ValidationTests
     {
         [TestMethod]
-        public void ValidModelsShouldBePassed()
+        public void Validation_ValidModelsShouldBePassed()
         {
             var index = 0;
             foreach (var model in ValidModels.Get())
@@ -18,7 +18,7 @@ namespace BooksStore.Tests
         }
 
         [TestMethod]
-        public void InvalidModelsShouldBeCatched()
+        public void Validation_InvalidModelsShouldBeCatched()
         {
             var index = 0;
             foreach (var model in InvalidModels.Get())

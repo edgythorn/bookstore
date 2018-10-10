@@ -6,30 +6,35 @@ namespace BooksStore.Tests
     [TestClass]
     public class ValidationTests
     {
-        //TODO More tests
-
         [TestMethod]
         public void ValidModelsShouldBePassed()
         {
+            var index = 0;
             foreach (var model in ValidModels.Get())
             {
-                Assert.IsNull(model.Validate());
+                Assert.IsNull(model.Validate(), $"Model with index {index} ({(model as TestBook)?.Description}) has not been validated");
+                index++;
             }
         }
 
         [TestMethod]
         public void InvalidModelsShouldBeCatched()
         {
+            var index = 0;
             foreach (var model in InvalidModels.Get())
             {
                 var results = model.Validate();
-                Assert.IsNotNull(results);
+
+                Assert.IsNotNull(results, $"Model with index {index} ({(model as TestBook)?.Description}) has been validated");
                 Assert.AreNotEqual(0, results.Count);
+                
                 foreach (var item in results)
                 {
                     Assert.IsNotNull(item);
                     Assert.IsNotNull(item.ErrorMessage);
                 }
+
+                index++;
             }
         }
     }
